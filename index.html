@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sunshine Cafe — Soda Water Maker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Lexend:wght@600;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #FFF9F2;
+      --wood: #5C3A21;
+      --wood-light: #8D5B4C;
+      --yellow: #FFD166;
+      --orange: #FF8C38;
+      --blue: #118AB2;
+      --green: #2A9D8F;
+      --red: #E63946;
+      --card-bg: #FFFFFF;
+      --border: #E8D5C4;
+      --ink: #332722;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; min-height: 100vh; }
+    body {
+      font-family: "Fredoka", "Lexend", sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 12px;
+      user-select: none;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    /* Top Bar */
+    header.bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--wood);
+      color: #fff;
+      border-radius: 20px;
+      padding: 10px 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 6px 0 rgba(0,0,0,0.15);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand .logo-emoji { font-size: 2rem; }
+    .brand h1 { font-size: 1.3rem; margin: 0; }
+    .brand p { margin: 0; font-size: 0.85rem; color: var(--yellow); }
+    
+    .top-controls { display: flex; gap: 8px; }
+    .icon-btn {
+      min-width: 52px;
+      height: 52px;
+      border-radius: 16px;
+      border: 3px solid #fff;
+      background: var(--wood-light);
+      color: #fff;
+      font-size: 1.5rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.1s;
+    }
+    .icon-btn:active { transform: scale(0.92); }
+
+    /* Screens */
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* Buttons & Inputs */
+    .btn-large {
+      display: block;
+      width: 100%;
+      min-height: 64px;
+      margin: 12px 0;
+      border: 0;
+      border-radius: 24px;
+      background: var(--yellow);
+      color: var(--wood);
+      font-size: 1.4rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 6px 0 var(--wood-light);
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+    .btn-large:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 var(--wood-light);
+    }
+    .btn-large.blue { background: var(--blue); color: #fff; box-shadow: 0 6px 0 #0b5a73; }
+    .btn-large.green { background: var(--green); color: #fff; box-shadow: 0 6px 0 #1b5e54; }
+
+    .name-input {
+      width: 100%;
+      max-width: 380px;
+      height: 60px;
+      margin: 16px auto;
+      display: block;
+      font-family: inherit;
+      font-size: 1.5rem;
+      font-weight: 700;
+      text-align: center;
+      border: 4px solid var(--wood);
+      border-radius: 20px;
+      background: #fff;
+      color: var(--ink);
+    }
+
+    /* Hero / Start Screen */
+    .hero {
+      text-align: center;
+      background: #fff;
+      border: 4px solid var(--border);
+      border-radius: 28px;
+      padding: 24px 16px;
+    }
+    .hero .mascot { font-size: 4.5rem; margin-bottom: 8px; }
+    .hero h2 { font-size: 1.8rem; margin: 8px 0; color: var(--wood); }
+    .hero p { font-size: 1.1rem; color: #666; margin: 4px 0; }
+
+    /* Order Screen */
+    .talk-card {
+      background: #fff;
+      border: 4px solid var(--border);
+      border-radius: 24px;
+      padding: 16px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .talk-avatar {
+      font-size: 3.5rem;
+      background: var(--paper);
+      border-radius: 20px;
+      padding: 8px;
+      flex-shrink: 0;
+      border: 3px solid var(--border);
+    }
+    .talk-bubble { flex: 1; }
+    .talk-role { font-size: 0.85rem; color: #888; font-weight: 700; text-transform: uppercase; }
+    .talk-text { font-size: 1.3rem; font-weight: 700; color: var(--wood); margin: 4px 0 0; }
+
+    .order-choices {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .choice-card {
+      background: #fff;
+      border: 5px solid var(--border);
+      border-radius: 24px;
+      padding: 20px 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .choice-card .emoji { font-size: 4rem; display: block; margin-bottom: 8px; }
+    .choice-card .title { font-size: 1.3rem; font-weight: 700; color: var(--wood); }
+    .choice-card:hover { border-color: var(--yellow); transform: translateY(-4px); }
+
+    /* Wordwall Screen with Picture Clue & Hint */
+    .wordwall-card {
+      background: #fff;
+      border: 5px solid var(--yellow);
+      border-radius: 28px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      position: relative;
+    }
+    .wordwall-progress {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--orange);
+      margin-bottom: 8px;
+    }
+
+    /* Picture Clue Box */
+    .picture-clue-box {
+      width: 130px;
+      height: 130px;
+      margin: 8px auto 12px;
+      background: #FFF9E6;
+      border: 4px dashed var(--yellow);
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .picture-clue-box .clue-emoji { font-size: 3.8rem; line-height: 1; }
+    .picture-clue-box .clue-label { font-size: 0.8rem; font-weight: 700; color: var(--wood-light); margin-top: 4px; }
+
+    .sentence-box {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin: 16px 0;
+      line-height: 1.5;
+    }
+    .blank-spot {
+      display: inline-block;
+      min-width: 110px;
+      height: 48px;
+      border-bottom: 5px solid var(--blue);
+      background: #EBF8FF;
+      border-radius: 12px;
+      vertical-align: middle;
+      line-height: 44px;
+      color: var(--blue);
+      padding: 0 12px;
+      animation: pulse-blank 1.5s infinite;
+    }
+    @keyframes pulse-blank {
+      0%, 100% { background: #EBF8FF; border-color: var(--blue); }
+      50% { background: #FFE169; border-color: var(--orange); }
+    }
+
+    .hint-container {
+      margin: 8px 0;
+      min-height: 38px;
+    }
+    .hint-btn {
+      background: var(--paper);
+      border: 2px solid var(--orange);
+      color: var(--orange);
+      border-radius: 14px;
+      padding: 6px 16px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .hint-text {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--wood);
+      display: none;
+      background: #FFF3E0;
+      padding: 6px 14px;
+      border-radius: 12px;
+    }
+
+    .options-bar {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin: 20px 0 16px;
+    }
+    .word-chip {
+      min-width: 110px;
+      padding: 12px 20px;
+      font-size: 1.4rem;
+      font-weight: 700;
+      border-radius: 20px;
+      border: 4px solid #fff;
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 6px 0 rgba(0,0,0,0.15);
+      transition: transform 0.1s;
+    }
+    .word-chip:nth-child(1) { background: var(--blue); }
+    .word-chip:nth-child(2) { background: var(--red); }
+    .word-chip:active { transform: scale(0.95); }
+
+    /* Kitchen Screen */
+    .ticket-bar {
+      background: #fff;
+      border: 3px solid var(--border);
+      border-radius: 18px;
+      padding: 10px 16px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--wood);
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .step-dots {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .dot {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: #DDD;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: #666;
+    }
+    .dot.active { background: var(--yellow); color: var(--wood); border: 3px solid var(--wood); }
+    .dot.done { background: var(--green); color: #fff; }
+
+    .stage-card {
+      background: #fff;
+      border: 4px solid var(--border);
+      border-radius: 28px;
+      padding: 16px;
+      text-align: center;
+    }
+    .instruction { font-size: 1.3rem; font-weight: 700; color: var(--wood); margin: 0 0 4px; }
+    .counter-badge { font-size: 1.5rem; font-weight: 800; color: var(--blue); margin-bottom: 8px; }
+
+    /* SVG Kitchen Area */
+    .svg-container { width: 100%; max-width: 460px; margin: 0 auto; }
+    .svg-container svg { width: 100%; height: auto; display: block; }
+
+    .highlight-act { animation: pulse-glow 1.2s infinite alternate; cursor: pointer; }
+    @keyframes pulse-glow {
+      from { filter: drop-shadow(0 0 2px var(--yellow)); }
+      to { filter: drop-shadow(0 0 12px var(--orange)); }
+    }
+
+    /* SVG Elements */
+    .ice-cube { opacity: 0; transition: opacity 0.2s; }
+    .ice-cube.visible { opacity: 1; }
+
+    .bubble-anim { animation: rise-bubbles 2s linear infinite; }
+    .b1 { animation-delay: 0s; }
+    .b2 { animation-delay: 0.6s; }
+    .b3 { animation-delay: 1.2s; }
+    .b4 { animation-delay: 0.3s; }
+    .b5 { animation-delay: 0.9s; }
+
+    @keyframes rise-bubbles {
+      0% { transform: translateY(0); opacity: 0; }
+      20% { opacity: 0.8; }
+      80% { opacity: 0.8; }
+      100% { transform: translateY(-110px); opacity: 0; }
+    }
+
+    #syrupRect, #sodaRect {
+      transition: y 0.4s ease-out, height 0.4s ease-out, opacity 0.3s ease-out;
+    }
+
+    /* Spoon Stirring Animation (Move Left to Right) */
+    .stirring-anim {
+      transform-origin: 200px 30px;
+      animation: stir-left-right 0.6s ease-in-out infinite alternate;
+    }
+    @keyframes stir-left-right {
+      0% { transform: rotate(-18deg) translateX(-12px); }
+      100% { transform: rotate(18deg) translateX(12px); }
+    }
+
+    /* Modals */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(51, 39, 34, 0.6);
+      display: none;
+      place-items: center;
+      z-index: 100;
+      padding: 20px;
+    }
+    .modal.active { display: grid; }
+    .modal-card {
+      background: #fff;
+      border: 6px solid var(--yellow);
+      border-radius: 32px;
+      padding: 24px 20px;
+      text-align: center;
+      max-width: 440px;
+      width: 100%;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.2);
+    }
+    .modal-emoji { font-size: 4rem; margin-bottom: 8px; }
+    .modal-title { font-size: 1.7rem; font-weight: 700; color: var(--wood); margin: 8px 0; }
+    .modal-text { font-size: 1.2rem; color: #555; margin-bottom: 16px; }
+
+    .straw-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+    .straw-btn {
+      padding: 14px;
+      border-radius: 20px;
+      border: 4px solid var(--border);
+      background: #fff;
+      font-size: 1.2rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .straw-btn .emoji { font-size: 2.2rem; }
+    .straw-btn.highlight { border-color: var(--green); background: #E6F8F5; }
+  </style>
+</head>
+<body>
+
+  <div class="app">
+    <!-- Top Header Bar -->
+    <header class="bar">
+      <div class="brand">
+        <span class="logo-emoji">🥤</span>
+        <div>
+          <h1>Sunshine Cafe</h1>
+          <p>Soda Water Maker · 1:5 Ratio</p>
+        </div>
+      </div>
+      <div class="top-controls">
+        <button class="icon-btn" id="ttsBtn" aria-label="Read Aloud">🔊</button>
+        <button class="icon-btn" id="muteBtn" aria-label="Toggle Sound">🔈</button>
+      </div>
+    </header>
+
+    <!-- Start Screen -->
+    <section id="screen-start" class="screen active">
+      <div class="hero">
+        <div class="mascot">🧑‍🍳</div>
+        <h2>Welcome to Sunshine Cafe!</h2>
+        <p>Type your name to start as Barista:</p>
+        <input type="text" id="playerName" class="name-input" maxlength="20" placeholder="Your Name" value="Alex">
+        <button class="btn-large green" id="startBtn">Start Game · 開始</button>
+      </div>
+    </section>
+
+    <!-- Order Screen -->
+    <section id="screen-order" class="screen">
+      <div class="talk-card">
+        <div class="talk-avatar">🧑‍🍳</div>
+        <div class="talk-bubble">
+          <div class="talk-role">Barista</div>
+          <div class="talk-text">How can I help you?</div>
+        </div>
+        <button class="icon-btn" onclick="say('How can I help you?')">🔊</button>
+      </div>
+
+      <div class="talk-card">
+        <div class="talk-avatar" id="custAvatar">👦🏻</div>
+        <div class="talk-bubble">
+          <div class="talk-role" id="custName">Customer 1</div>
+          <div class="talk-text" id="custText">I'd like to have yuzu soda, please.</div>
+        </div>
+        <button class="icon-btn" id="custSpeakBtn">🔊</button>
+      </div>
+
+      <p style="text-align:center; font-size:1.2rem; font-weight:700; color:var(--wood); margin:12px 0 4px;">
+        Tap the correct drink:
+      </p>
+
+      <div class="order-choices">
+        <div class="choice-card" onclick="selectDrink('yuzu')">
+          <span class="emoji">🍋🥤</span>
+          <span class="title">Yuzu Soda</span>
+        </div>
+        <div class="choice-card" onclick="selectDrink('orange')">
+          <span class="emoji">🍊🥤</span>
+          <span class="title">Orange Soda</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Wordwall Fill in the Blanks Screen -->
+    <section id="screen-wordwall" class="screen">
+      <div class="wordwall-card">
+        <div class="wordwall-progress" id="wwProgress">Question 1 of 3</div>
+
+        <!-- Picture Clue Area -->
+        <div class="picture-clue-box">
+          <span class="clue-emoji" id="clueEmoji">🤝</span>
+          <span class="clue-label" id="clueLabel">Picture Clue</span>
+        </div>
+
+        <div class="sentence-box" id="wordwallSentence"></div>
+
+        <!-- Hint Section -->
+        <div class="hint-container">
+          <button class="hint-btn" id="showHintBtn" onclick="toggleHint()">💡 Need a Hint?</button>
+          <span class="hint-text" id="hintText"></span>
+        </div>
+
+        <div class="options-bar" id="optionsBar"></div>
+
+        <button class="btn-large blue" style="min-height:46px; font-size:1rem; width:auto; margin:0 auto;" id="readQuestionBtn">
+          🔊 Replay Question & Options
+        </button>
+      </div>
+    </section>
+
+    <!-- Cooking Stage Screen -->
+    <section id="screen-cook" class="screen">
+      <div class="ticket-bar">
+        <span id="ticketCust">Customer 1 / 5</span>
+        <span id="ticketDrink" style="color:var(--orange);">Yuzu Soda</span>
+      </div>
+
+      <div class="step-dots" id="stepDots">
+        <div class="dot">1</div>
+        <div class="dot">2</div>
+        <div class="dot">3</div>
+        <div class="dot">4</div>
+        <div class="dot">5</div>
+      </div>
+
+      <div class="stage-card">
+        <div class="instruction" id="cookInstruction">Add 12 cubes of ice.</div>
+        <div class="counter-badge" id="cookCounter">0 / 12</div>
+
+        <div class="svg-container">
+          <svg id="svgStage" viewBox="0 0 400 320">
+            <defs>
+              <clipPath id="cupInnerClip">
+                <path d="M 142 80 L 152 250 Q 200 263 248 250 L 258 80 Z" />
+              </clipPath>
+
+              <linearGradient id="sodaGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#C5E8FE" stop-opacity="0.85"/>
+                <stop offset="100%" stop-color="#80C9FF" stop-opacity="0.95"/>
+              </linearGradient>
+
+              <linearGradient id="yuzuGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#FFF3B0"/>
+                <stop offset="100%" stop-color="#FFD166"/>
+              </linearGradient>
+
+              <linearGradient id="orangeGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#FFC069"/>
+                <stop offset="100%" stop-color="#FF8C38"/>
+              </linearGradient>
+            </defs>
+
+            <!-- Table -->
+            <rect x="0" y="250" width="400" height="70" fill="#E8D5C4"/>
+            <rect x="0" y="250" width="400" height="12" fill="#C4A484"/>
+
+            <!-- Overflow Visual -->
+            <path id="overflowVisual" d="M 135 80 Q 200 60 265 80 L 270 250 L 130 250 Z" fill="#80C9FF" opacity="0"/>
+
+            <!-- Glass Cup Container -->
+            <g id="glassGroup">
+              <!-- Masked Liquids Layer -->
+              <g clip-path="url(#cupInnerClip)">
+                <rect id="sodaRect" x="130" y="250" width="140" height="0" fill="url(#sodaGrad)" opacity="0"/>
+                
+                <g id="sodaBubbles" opacity="0">
+                  <circle class="bubble-anim b1" cx="170" cy="230" r="3.5" fill="#FFF" opacity="0.8"/>
+                  <circle class="bubble-anim b2" cx="190" cy="240" r="4.5" fill="#FFF" opacity="0.8"/>
+                  <circle class="bubble-anim b3" cx="210" cy="225" r="3" fill="#FFF" opacity="0.8"/>
+                  <circle class="bubble-anim b4" cx="230" cy="235" r="4" fill="#FFF" opacity="0.8"/>
+                  <circle class="bubble-anim b5" cx="180" cy="245" r="2.5" fill="#FFF" opacity="0.8"/>
+                </g>
+
+                <rect id="syrupRect" x="130" y="250" width="140" height="0" fill="url(#yuzuGrad)" opacity="0"/>
+              </g>
+
+              <!-- Glass Outline -->
+              <path d="M 140 80 L 150 250 Q 200 265 250 250 L 260 80 Z" fill="none" stroke="#5C3A21" stroke-width="4.5"/>
+              <path d="M 146 90 L 154 240" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" opacity="0.6"/>
+
+              <!-- Ice Cubes Grid -->
+              <g id="iceCubesGroup">
+                <rect class="ice-cube" x="165" y="225" width="22" height="22" rx="4" fill="#E0F4FF" stroke="#A0C4DF" stroke-width="2"/>
+                <rect class="ice-cube" x="190" y="228" width="22" height="22" rx="4" fill="#E0F4FF" stroke="#A0C4DF" stroke-width="2"/>
+                <rect class="ice-cube" x="215" y="223" width="22" height="22" rx="4" fill="#E0F4FF" stroke="#A0C4DF" stroke-width="2"/>
+                
+                <rect class="ice-cube" x="160" y="200" width="22" height="22" rx="4" fill="#E0F4FF" stroke="#A0C4DF" stroke-width="2"/>
+                <rect class="ice-cube" x="188" y="202" width="22" height="22" rx="4" fill="#E0F4FF" stroke="#A0C4DF" stroke-width="2"/>
+                <rect class="ice-cube" x="213" y="198" width="22" height="22" rx="4" fill="#E0F4FF" stroke="#A0C4DF" stroke-width="2"/>
+
+                <rect class="ice-cube" x="163" y="175" width="22" height="22" rx="4" fill="#E0F4FF" stroke="#A0C4DF" stroke-width="2"/>
+                <rect class="ice-cube" x="189" y="177" width="22" height="22" rx="4" fill="#E0F4FF" stroke="#A0C4DF" stroke-width="2"/>
+                <rect class="ice-cube" x="214" y="173" width="22" height="22" rx="4" fill="#E0F4FF" stroke="#A0C4DF" stroke-width="2"/>
+
+                <rect class="ice-cube" x="165" y="150" width="22" height="22" rx="4" fill="#E0F4FF" stroke="#A0C4DF" stroke-width="2"/>
+                <rect class="ice-cube" x="191" y="152" width="22" height="22" rx="4" fill="#E0F4FF" stroke="#A0C4DF" stroke-width="2"/>
+                <rect class="ice-cube" x="216" y="148" width="22" height="22" rx="4" fill="#E0F4FF" stroke="#A0C4DF" stroke-width="2"/>
+
+                <rect class="ice-cube" x="170" y="125" width="22" height="22" rx="4" fill="#E0F4FF" stroke="#A0C4DF" stroke-width="2"/>
+                <rect class="ice-cube" x="195" y="127" width="22" height="22" rx="4" fill="#E0F4FF" stroke="#A0C4DF" stroke-width="2"/>
+                <rect class="ice-cube" x="182" y="100" width="22" height="22" rx="4" fill="#E0F4FF" stroke="#A0C4DF" stroke-width="2"/>
+              </g>
+
+              <g id="fruitSliceGroup" opacity="0">
+                <circle id="fruitCircle" cx="200" cy="130" r="24" fill="#FFD166" stroke="#E0A800" stroke-width="3"/>
+                <circle cx="200" cy="130" r="16" fill="#FFF4B0"/>
+              </g>
+
+              <g id="strawGroup" opacity="0">
+                <rect x="215" y="40" width="10" height="200" rx="4" fill="#FF595E" transform="rotate(-12 215 40)"/>
+              </g>
+
+              <!-- Scale Lines -->
+              <g id="scaleLines" stroke="#5C3A21" stroke-width="2" opacity="0.8">
+                <line x1="242" y1="110" x2="256" y2="110"/>
+                <text x="262" y="114" font-size="12" font-weight="bold" fill="#5C3A21">6</text>
+                <line x1="243" y1="132" x2="255" y2="132"/>
+                <text x="260" y="136" font-size="11" fill="#777">5</text>
+                <line x1="244" y1="155" x2="255" y2="155"/>
+                <text x="260" y="159" font-size="11" fill="#777">4</text>
+                <line x1="245" y1="177" x2="255" y2="177"/>
+                <text x="260" y="181" font-size="11" fill="#777">3</text>
+                <line x1="246" y1="200" x2="255" y2="200"/>
+                <text x="260" y="204" font-size="11" fill="#777">2</text>
+                <line x1="248" y1="222" x2="258" y2="222" stroke="#E63946" stroke-width="3"/>
+                <text x="262" y="226" font-size="12" font-weight="bold" fill="#E63946">1</text>
+              </g>
+            </g>
+
+            <!-- Interactive Kitchen Tools -->
+            <g id="toolIce" class="highlight-act" onclick="handleStageAction('ice')">
+              <rect x="20" y="180" width="90" height="70" rx="14" fill="#BEE3F8" stroke="#118AB2" stroke-width="4"/>
+              <text x="65" y="222" font-size="32" text-anchor="middle">🧊</text>
+              <text x="65" y="244" font-size="12" font-weight="bold" text-anchor="middle" fill="#118AB2">ICE BUCKET</text>
+            </g>
+
+            <g id="toolSyrup" class="highlight-act" onclick="handleStageAction('syrup')" opacity="0.3">
+              <rect x="300" y="150" width="55" height="100" rx="12" id="syrupBottleBody" fill="#FFD166" stroke="#5C3A21" stroke-width="4"/>
+              <rect x="318" y="130" width="18" height="20" fill="#5C3A21"/>
+              <text x="327" y="200" font-size="24" text-anchor="middle" id="syrupBottleEmoji">🍋</text>
+              <text x="327" y="240" font-size="11" font-weight="bold" text-anchor="middle" fill="#5C3A21">SYRUP</text>
+            </g>
+
+            <g id="toolSoda" class="highlight-act" onclick="handleStageAction('soda')" opacity="0.3">
+              <rect x="20" y="50" width="60" height="100" rx="10" fill="#118AB2" stroke="#0B5A73" stroke-width="4"/>
+              <text x="50" y="100" font-size="28" text-anchor="middle">🫧</text>
+              <text x="50" y="138" font-size="10" font-weight="bold" text-anchor="middle" fill="#FFF">SODA</text>
+            </g>
+
+            <g id="toolFruit" class="highlight-act" onclick="handleStageAction('fruit')" opacity="0.3">
+              <ellipse cx="320" cy="90" rx="40" ry="20" fill="#FFF" stroke="#E8D5C4" stroke-width="4"/>
+              <text x="320" y="96" font-size="28" text-anchor="middle" id="fruitDishEmoji">🍋</text>
+            </g>
+
+            <!-- Stirring Spoon Tool (With Animated Group) -->
+            <g id="toolStir" class="highlight-act" onclick="handleStageAction('stir')" opacity="0.3">
+              <g id="spoonGraphicGroup">
+                <rect x="196" y="20" width="8" height="140" rx="4" fill="#C4A484" stroke="#5C3A21" stroke-width="2"/>
+                <ellipse cx="200" cy="160" rx="14" ry="8" fill="#D1D5DB" stroke="#5C3A21" stroke-width="2"/>
+              </g>
+            </g>
+          </svg>
+        </div>
+
+        <button class="btn-large green" id="nextStepBtn" style="margin-top:16px;">Next Step · 下一步</button>
+      </div>
+    </section>
+  </div>
+
+  <!-- Modals -->
+  <div id="strawModal" class="modal">
+    <div class="modal-card">
+      <div class="modal-emoji" id="strawCustEmoji">👦🏻</div>
+      <div class="modal-title">Do you need a straw?</div>
+      <div class="modal-text" id="strawCustBubble">"Yes, please!"</div>
+      <div class="straw-grid">
+        <button class="straw-btn" id="btnStrawYes" onclick="answerStraw(true)">
+          <span class="emoji">🥤</span><span>Give Straw</span>
+        </button>
+        <button class="straw-btn" id="btnStrawNo" onclick="answerStraw(false)">
+          <span class="emoji">❌</span><span>No Straw</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="retryModal" class="modal">
+    <div class="modal-card">
+      <div class="modal-emoji" id="retryEmoji">⚠️</div>
+      <div class="modal-title" id="retryTitle">Let's try again!</div>
+      <div class="modal-text" id="retryText">We need 12 cubes of ice.</div>
+      <button class="btn-large" id="retryBtn">Try Again · 再做一次</button>
+    </div>
+  </div>
+
+  <div id="summaryModal" class="modal">
+    <div class="modal-card">
+      <div class="modal-emoji">🌟🍹🌟</div>
+      <div class="modal-title" id="summaryTitle">Super Barista!</div>
+      <div class="modal-text" id="summaryText">Great job! You made delicious soda water for all customers!</div>
+      <button class="btn-large green" onclick="restartGame()">Play Again · 再玩一次</button>
+    </div>
+  </div>
+
+  <script>
+    const TOTAL_CUSTOMERS = 5;
+    let currentCustIndex = 0;
+    let isMuted = false;
+    let playerName = "Alex";
+
+    const CUSTOMERS = [
+      { name: "Tom", emoji: "👦🏻", drink: "yuzu" },
+      { name: "Amy", emoji: "👧🏽", drink: "orange" },
+      { name: "Ken", emoji: "🧔‍♂️", drink: "yuzu" },
+      { name: "May", emoji: "👵🏻", drink: "orange" },
+      { name: "Ben", emoji: "🏼", drink: "yuzu" }
+    ];
+
+    /* 
+      Wordwall Questions focused exclusively on:
+      1. How can I help you?
+      2. I'd like to have [drink], please.
+    */
+    const WORDWALL_DATA = [
+      [ // Customer 1 (Tom - Yuzu)
+        { 
+          sentence: "How ________ I help you?", 
+          options: ["can", "do"], 
+          correct: "can", 
+          emoji: "❓", 
+          hint: "Asking how to assist the customer: 'can'" 
+        },
+        { 
+          sentence: "I'd ________ to have yuzu soda, please.", 
+          options: ["like", "love"], 
+          correct: "like", 
+          emoji: "🍋", 
+          hint: "Polite ordering structure: 'I'd like to...'" 
+        },
+        { 
+          sentence: "How can ________ help you?", 
+          options: ["I", "you"], 
+          correct: "I", 
+          emoji: "🧑‍🍳", 
+          hint: "The barista offers help: 'How can I...'" 
+        }
+      ],
+      [ // Customer 2 (Amy - Orange)
+        { 
+          sentence: "How can I ________ you?", 
+          options: ["help", "give"], 
+          correct: "help", 
+          emoji: "🤝", 
+          hint: "Friendly offering service: 'help'" 
+        },
+        { 
+          sentence: "I'd like ________ have orange soda, please.", 
+          options: ["to", "for"], 
+          correct: "to", 
+          emoji: "🍊", 
+          hint: "Connecting verb: 'like to have'" 
+        },
+        { 
+          sentence: "________ can I help you?", 
+          options: ["How", "What"], 
+          correct: "How", 
+          emoji: "💬", 
+          hint: "Question word for offering service: 'How'" 
+        }
+      ],
+      [ // Customer 3 (Ken - Yuzu)
+        { 
+          sentence: "How ________ I help you today?", 
+          options: ["can", "are"], 
+          correct: "can", 
+          emoji: "🙋‍♂️", 
+          hint: "Auxiliary verb: 'can'" 
+        },
+        { 
+          sentence: "I'd like to ________ yuzu soda, please.", 
+          options: ["have", "take"], 
+          correct: "have", 
+          emoji: "🍹", 
+          hint: "Ordering expression: 'have'" 
+        },
+        { 
+          sentence: "I'd ________ to have yuzu soda, please.", 
+          options: ["like", "want"], 
+          correct: "like", 
+          emoji: "🍋", 
+          hint: "Polite order phrase: 'I'd like...'" 
+        }
+      ],
+      [ // Customer 4 (May - Orange)
+        { 
+          sentence: "How can I ________ you?", 
+          options: ["help", "see"], 
+          correct: "help", 
+          emoji: "👵🏻", 
+          hint: "Greeting the customer: 'help'" 
+        },
+        { 
+          sentence: "I'd like to have orange soda, ________.", 
+          options: ["please", "thanks"], 
+          correct: "please", 
+          emoji: "🍊", 
+          hint: "Magic word for polite request: 'please'" 
+        },
+        { 
+          sentence: "How ________ I help you?", 
+          options: ["can", "will"], 
+          correct: "can", 
+          emoji: "❓", 
+          hint: "Offering help: 'can'" 
+        }
+      ],
+      [ // Customer 5 (Ben - Yuzu)
+        { 
+          sentence: "How can ________ help you?", 
+          options: ["I", "me"], 
+          correct: "I", 
+          emoji: "🧑‍🍳", 
+          hint: "Subject pronoun: 'I'" 
+        },
+        { 
+          sentence: "I'd ________ to have yuzu soda, please.", 
+          options: ["like", "make"], 
+          correct: "like", 
+          emoji: "🍋", 
+          hint: "Polite customer request: 'like'" 
+        },
+        { 
+          sentence: "I'd like ________ have yuzu soda, please.", 
+          options: ["to", "in"], 
+          correct: "to", 
+          emoji: "🍹", 
+          hint: "Infinitive marker: 'to'" 
+        }
+      ]
+    ];
+
+    let wordwallSubIndex = 0;
+    let currentStep = 0; // 0:Ice, 1:Syrup, 2:Soda, 3:Fruit, 4:Stir
+    let iceCount = 0;
+    let scaleLevel = 0;
+    let fruitAdded = false;
+    let stirCount = 0;
+    let isStirring = false;
+    let currentStrawNeed = true;
+
+    const SCALE_Y = { 0: 260, 1: 222, 2: 200, 3: 177, 4: 155, 5: 132, 6: 110, 7: 75 };
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playTone(freq, type, duration) {
+      if (isMuted) return;
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    }
+
+    function sfxPop() { playTone(600, 'sine', 0.1); }
+    function sfxPour() { playTone(300 + Math.random()*100, 'triangle', 0.15); }
+    function sfxWin() { playTone(523, 'sine', 0.15); setTimeout(()=>playTone(659, 'sine', 0.2), 150); }
+    function sfxErr() { playTone(180, 'sawtooth', 0.25); }
+
+    function say(text, callback) {
+      if (isMuted || !('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'en-US';
+      u.rate = 0.85;
+      if (callback) u.onend = callback;
+      window.speechSynthesis.speak(u);
+    }
+
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+    }
+
+    document.getElementById('startBtn').onclick = () => {
+      const nameIn = document.getElementById('playerName').value.trim();
+      if (nameIn) playerName = nameIn;
+      currentCustIndex = 0;
+      loadCustomerOrder();
+    };
+
+    document.getElementById('muteBtn').onclick = () => {
+      isMuted = !isMuted;
+      document.getElementById('muteBtn').textContent = isMuted ? "🔇" : "🔈";
+      if (isMuted && 'speechSynthesis' in window) window.speechSynthesis.cancel();
+    };
+
+    document.getElementById('ttsBtn').onclick = () => {
+      const activeScreen = document.querySelector('.screen.active');
+      if (activeScreen.id === 'screen-order') say("How can I help you?");
+      else if (activeScreen.id === 'screen-cook') say(document.getElementById('cookInstruction').textContent);
+      else if (activeScreen.id === 'screen-wordwall') speakCurrentWordwallQuestion();
+    };
+
+    /* Order Stage */
+    function loadCustomerOrder() {
+      const cust = CUSTOMERS[currentCustIndex];
+      document.getElementById('custAvatar').textContent = cust.emoji;
+      document.getElementById('custName').textContent = cust.name;
+      
+      const drinkName = cust.drink === 'yuzu' ? 'yuzu soda' : 'orange soda';
+      const line = `I'd like to have ${drinkName}, please.`;
+      document.getElementById('custText').textContent = line;
+      document.getElementById('custSpeakBtn').onclick = () => say(line);
+
+      showScreen('screen-order');
+      say(`How can I help you? Customer ${cust.name} says: ${line}`);
+    }
+
+    function selectDrink(selected) {
+      const cust = CUSTOMERS[currentCustIndex];
+      if (selected === cust.drink) {
+        sfxWin();
+        wordwallSubIndex = 0;
+        loadWordwallQuestion();
+      } else {
+        sfxErr();
+        say(`Look again! Customer wants ${cust.drink === 'yuzu' ? 'yuzu soda' : 'orange soda'}.`);
+      }
+    }
+
+    /* Wordwall Stage */
+    function loadWordwallQuestion() {
+      const qList = WORDWALL_DATA[currentCustIndex];
+      const q = qList[wordwallSubIndex];
+
+      document.getElementById('wwProgress').textContent = `Question ${wordwallSubIndex + 1} of 3`;
+      document.getElementById('clueEmoji').textContent = q.emoji;
+
+      // Reset Hint Status
+      const hintText = document.getElementById('hintText');
+      const hintBtn = document.getElementById('showHintBtn');
+      hintText.style.display = 'none';
+      hintText.textContent = q.hint;
+      hintBtn.style.display = 'inline-flex';
+
+      const sentenceBox = document.getElementById('wordwallSentence');
+      sentenceBox.innerHTML = q.sentence.replace("________", `<span class="blank-spot" id="blankSpot">?</span>`);
+
+      const optionsBar = document.getElementById('optionsBar');
+      optionsBar.innerHTML = "";
+
+      q.options.forEach((opt) => {
+        const btn = document.createElement('button');
+        btn.className = "word-chip";
+        btn.textContent = opt;
+        btn.onclick = () => checkWordwallAnswer(opt, q.correct);
+        optionsBar.appendChild(btn);
+      });
+
+      document.getElementById('readQuestionBtn').onclick = speakCurrentWordwallQuestion;
+
+      showScreen('screen-wordwall');
+      speakCurrentWordwallQuestion();
+    }
+
+    function toggleHint() {
+      const hintText = document.getElementById('hintText');
+      const hintBtn = document.getElementById('showHintBtn');
+      hintText.style.display = 'inline-block';
+      hintBtn.style.display = 'none';
+      say(`Hint: ${hintText.textContent}`);
+    }
+
+    function speakCurrentWordwallQuestion() {
+      const qList = WORDWALL_DATA[currentCustIndex];
+      const q = qList[wordwallSubIndex];
+      const cleanSentence = q.sentence.replace("________", "blank");
+      const speechText = `Fill in the blank: ${cleanSentence}. Option 1: ${q.options[0]}. Option 2: ${q.options[1]}.`;
+      say(speechText);
+    }
+
+    function checkWordwallAnswer(selected, correct) {
+      if (selected === correct) {
+        sfxWin();
+        const blank = document.getElementById('blankSpot');
+        if (blank) {
+          blank.textContent = selected;
+          blank.style.background = "#2A9D8F";
+          blank.style.color = "#FFF";
+        }
+        say(`Correct! ${selected}.`, () => {
+          wordwallSubIndex++;
+          if (wordwallSubIndex < 3) {
+            loadWordwallQuestion();
+          } else {
+            startCookingStage();
+          }
+        });
+      } else {
+        sfxErr();
+        say(`Try again! Option is ${selected}`);
+      }
+    }
+
+    /* Kitchen / Cooking Stage */
+    function startCookingStage() {
+      const cust = CUSTOMERS[currentCustIndex];
+      document.getElementById('ticketCust').textContent = `Customer ${currentCustIndex + 1} / 5 · ${cust.name}`;
+      document.getElementById('ticketDrink').textContent = cust.drink === 'yuzu' ? 'Yuzu Soda 🍋' : 'Orange Soda 🍊';
+
+      const isYuzu = cust.drink === 'yuzu';
+      document.getElementById('syrupRect').setAttribute('fill', isYuzu ? 'url(#yuzuGrad)' : 'url(#orangeGrad)');
+      document.getElementById('syrupBottleBody').setAttribute('fill', isYuzu ? '#FFD166' : '#FF8C38');
+      document.getElementById('syrupBottleEmoji').textContent = isYuzu ? '🍋' : '🍊';
+      document.getElementById('fruitDishEmoji').textContent = isYuzu ? '🍋' : '🍊';
+      document.getElementById('fruitCircle').setAttribute('fill', isYuzu ? '#FFD166' : '#FF8C38');
+
+      resetKitchenState();
+      showScreen('screen-cook');
+      renderStep();
+    }
+
+    function resetKitchenState() {
+      currentStep = 0;
+      iceCount = 0;
+      scaleLevel = 0;
+      fruitAdded = false;
+      stirCount = 0;
+      isStirring = false;
+      
+      const spoonGroup = document.getElementById('spoonGraphicGroup');
+      if (spoonGroup) spoonGroup.classList.remove('stirring-anim');
+
+      document.getElementById('strawGroup').style.opacity = "0";
+      document.getElementById('overflowVisual').setAttribute('opacity', '0');
+      updateKitchenVisuals();
+    }
+
+    function renderStep() {
+      const dots = document.querySelectorAll('#stepDots .dot');
+      dots.forEach((dot, idx) => {
+        dot.className = "dot";
+        if (idx < currentStep) dot.classList.add('done');
+        if (idx === currentStep) dot.classList.add('active');
+      });
+
+      document.getElementById('toolIce').style.opacity = currentStep === 0 ? "1" : "0.3";
+      document.getElementById('toolSyrup').style.opacity = currentStep === 1 ? "1" : "0.3";
+      document.getElementById('toolSoda').style.opacity = currentStep === 2 ? "1" : "0.3";
+      document.getElementById('toolFruit').style.opacity = currentStep === 3 ? "1" : "0.3";
+      document.getElementById('toolStir').style.opacity = currentStep === 4 ? "1" : "0.3";
+
+      const instEl = document.getElementById('cookInstruction');
+      const countEl = document.getElementById('cookCounter');
+
+      if (currentStep === 0) {
+        instEl.textContent = "Step 1: Add 12 cubes of ice.";
+        countEl.textContent = `${iceCount} / 12`;
+      } else if (currentStep === 1) {
+        instEl.textContent = "Step 2: Pour syrup to Line 1.";
+        countEl.textContent = `Line ${scaleLevel} / 1`;
+      } else if (currentStep === 2) {
+        instEl.textContent = "Step 3: Pour soda water to Line 6 (1:5 ratio).";
+        countEl.textContent = `Line ${scaleLevel} / 6`;
+      } else if (currentStep === 3) {
+        instEl.textContent = "Step 4: Add a fruit slice.";
+        countEl.textContent = fruitAdded ? "1 / 1" : "0 / 1";
+      } else if (currentStep === 4) {
+        instEl.textContent = "Step 5: Stir the soda water!";
+        countEl.textContent = `${stirCount} / 3`;
+      }
+
+      say(instEl.textContent);
+    }
+
+    function handleStageAction(tool) {
+      if (currentStep === 0 && tool === 'ice') {
+        iceCount++;
+        sfxPop();
+        updateKitchenVisuals();
+        document.getElementById('cookCounter').textContent = `${iceCount} / 12`;
+
+        if (iceCount > 12) {
+          showRetryModal("🧊 Overflow Ice!", "Too much ice! We only need 12 cubes.", () => {
+            iceCount = 0;
+            updateKitchenVisuals();
+            renderStep();
+          });
+        }
+      } else if (currentStep === 1 && tool === 'syrup') {
+        scaleLevel++;
+        sfxPour();
+        updateKitchenVisuals();
+        document.getElementById('cookCounter').textContent = `Line ${scaleLevel} / 1`;
+
+        if (scaleLevel > 4) {
+          showRetryModal("🍋 Too Much Syrup!", "Syrup is too sweet! We only pour to Line 1.", () => {
+            scaleLevel = 0;
+            updateKitchenVisuals();
+            renderStep();
+          });
+        }
+      } else if (currentStep === 2 && tool === 'soda') {
+        scaleLevel++;
+        sfxPour();
+        updateKitchenVisuals();
+        document.getElementById('cookCounter').textContent = `Line ${scaleLevel} / 6`;
+
+        if (scaleLevel > 6) {
+          document.getElementById('overflowVisual').setAttribute('opacity', '0.7');
+          showRetryModal("🫧 Soda Water Overflow!", "Oh no! The soda water spilled everywhere! Let's pour soda again.", () => {
+            scaleLevel = 1;
+            document.getElementById('overflowVisual').setAttribute('opacity', '0');
+            updateKitchenVisuals();
+            renderStep();
+          });
+        }
+      } else if (currentStep === 3 && tool === 'fruit') {
+        if (!fruitAdded) {
+          fruitAdded = true;
+          sfxPop();
+          updateKitchenVisuals();
+          document.getElementById('cookCounter').textContent = "1 / 1";
+        }
+      } else if (currentStep === 4 && tool === 'stir') {
+        if (stirCount < 3 && !isStirring) {
+          isStirring = true;
+          stirCount++;
+          sfxPour();
+          
+          const spoonGroup = document.getElementById('spoonGraphicGroup');
+          spoonGroup.classList.add('stirring-anim');
+          
+          document.getElementById('cookCounter').textContent = `${stirCount} / 3`;
+
+          setTimeout(() => {
+            spoonGroup.classList.remove('stirring-anim');
+            isStirring = false;
+          }, 800);
+        }
+      }
+    }
+
+    function updateKitchenVisuals() {
+      // Ice Cubes
+      const cubes = document.querySelectorAll('#iceCubesGroup .ice-cube');
+      cubes.forEach((c, idx) => {
+        if (idx < iceCount) c.classList.add('visible');
+        else c.classList.remove('visible');
+      });
+
+      // Syrup Layer
+      const syrupRect = document.getElementById('syrupRect');
+      if (scaleLevel >= 1) {
+        const syrupY = SCALE_Y[Math.min(scaleLevel, 6)];
+        syrupRect.setAttribute('opacity', '1');
+        syrupRect.setAttribute('y', syrupY);
+        syrupRect.setAttribute('height', 260 - syrupY);
+      } else {
+        syrupRect.setAttribute('opacity', '0');
+        syrupRect.setAttribute('height', '0');
+        syrupRect.setAttribute('y', '260');
+      }
+
+      // Soda Layer
+      const sodaRect = document.getElementById('sodaRect');
+      const sodaBubbles = document.getElementById('sodaBubbles');
+      if (scaleLevel >= 2) {
+        const targetY = SCALE_Y[Math.min(scaleLevel, 7)];
+        sodaRect.setAttribute('opacity', '1');
+        sodaRect.setAttribute('y', targetY);
+        sodaRect.setAttribute('height', 260 - targetY);
+        sodaBubbles.setAttribute('opacity', '1');
+      } else {
+        sodaRect.setAttribute('opacity', '0');
+        sodaRect.setAttribute('height', '0');
+        sodaRect.setAttribute('y', '260');
+        sodaBubbles.setAttribute('opacity', '0');
+      }
+
+      // Fruit Slice
+      document.getElementById('fruitSliceGroup').style.opacity = fruitAdded ? "1" : "0";
+    }
+
+    document.getElementById('nextStepBtn').onclick = () => {
+      if (currentStep === 0 && iceCount < 12) {
+        showRetryModal("🧊 Need More Ice", "Please add 12 cubes of ice into the cup!");
+        return;
+      }
+      if (currentStep === 1 && scaleLevel < 1) {
+        showRetryModal("🍋 Need Syrup", "Please pour syrup to Line 1!");
+        return;
+      }
+      if (currentStep === 2 && scaleLevel < 6) {
+        showRetryModal("🫧 Need Soda Water", "Pour soda water up to Line 6 for 1:5 ratio!");
+        return;
+      }
+      if (currentStep === 3 && !fruitAdded) {
+        showRetryModal("🍋 Fruit Slice", "Tap the dish to add a fruit slice!");
+        return;
+      }
+      if (currentStep === 4 && stirCount < 3) {
+        showRetryModal("🥄 Stir Drink", "Tap the spoon to stir the drink!");
+        return;
+      }
+
+      currentStep++;
+      if (currentStep <= 4) {
+        renderStep();
+      } else {
+        triggerStrawQuestion();
+      }
+    };
+
+    function showRetryModal(title, text, onRetryCallback) {
+      sfxErr();
+      document.getElementById('retryTitle').textContent = title;
+      document.getElementById('retryText').textContent = text;
+      
+      const btn = document.getElementById('retryBtn');
+      btn.onclick = () => {
+        closeRetryModal();
+        if (onRetryCallback) onRetryCallback();
+      };
+
+      document.getElementById('retryModal').classList.add('active');
+      say(`${title}. ${text}`);
+    }
+
+    function closeRetryModal() {
+      document.getElementById('retryModal').classList.remove('active');
+    }
+
+    /* Straw Interactive Question */
+    function triggerStrawQuestion() {
+      const cust = CUSTOMERS[currentCustIndex];
+      currentStrawNeed = Math.random() < 0.5;
+
+      document.getElementById('strawCustEmoji').textContent = cust.emoji;
+      document.getElementById('strawCustBubble').textContent = currentStrawNeed ? `"Yes, please!"` : `"No, thanks!"`;
+
+      document.getElementById('btnStrawYes').className = "straw-btn" + (currentStrawNeed ? " highlight" : "");
+      document.getElementById('btnStrawNo').className = "straw-btn" + (!currentStrawNeed ? " highlight" : "");
+
+      document.getElementById('strawModal').classList.add('active');
+      say(`Do you need a straw? Customer says: ${currentStrawNeed ? "Yes, please!" : "No, thanks!"}`);
+    }
+
+    function answerStraw(userGaveStraw) {
+      if (userGaveStraw === currentStrawNeed) {
+        sfxWin();
+        document.getElementById('strawModal').classList.remove('active');
+        if (userGaveStraw) document.getElementById('strawGroup').style.opacity = "1";
+        say("Thank you! Here you go!");
+        
+        setTimeout(() => {
+          currentCustIndex++;
+          if (currentCustIndex < TOTAL_CUSTOMERS) {
+            loadCustomerOrder();
+          } else {
+            showFinalSummary();
+          }
+        }, 1200);
+      } else {
+        sfxErr();
+        say(`Listen again! Customer said ${currentStrawNeed ? "Yes, please!" : "No, thanks!"}`);
+      }
+    }
+
+    /* Final Summary Modal */
+    function showFinalSummary() {
+      sfxWin();
+      document.getElementById('summaryTitle').textContent = `Super Barista, ${playerName}! 🌟`;
+      document.getElementById('summaryText').textContent = `Great job! You made 5 perfect 1:5 ratio soda drinks for all customers!`;
+      document.getElementById('summaryModal').classList.add('active');
+      say(`Super Barista, ${playerName}! Great job! You made 5 perfect soda drinks for all customers!`);
+    }
+
+    function restartGame() {
+      document.getElementById('summaryModal').classList.remove('active');
+      currentCustIndex = 0;
+      showScreen('screen-start');
+    }
+  </script>
+</body>
+</html>
